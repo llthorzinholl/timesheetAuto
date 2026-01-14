@@ -447,9 +447,10 @@ const App: React.FC = () => {
                <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2 uppercase tracking-wide">
                  <i className="fas fa-users text-blue-500"></i> Labour & Times
                </h3>
-               <div className="grid grid-cols-1 gap-2">
+               <div className="table-responsive">
+                 <div className="grid grid-cols-1 gap-2">
                   {[...Array(5)].map((_, i) => (
-                    <div key={i} className="grid grid-cols-6 gap-2 items-end border-b pb-2 border-slate-50">
+                    <div key={i} className="grid grid-cols-1 md:grid-cols-6 gap-2 items-end border-b pb-2 border-slate-50">
                         <div className="col-span-2">
                            <label className="text-[8px] text-slate-400 uppercase font-bold">Labourer Name {i+1}</label>
                            <input type="text" value={getItemQty(`L_N_${i}`)} onChange={e => updateItemQty(`L_N_${i}`, e.target.value)} className="w-full border p-1 rounded text-[10px]" />
@@ -472,6 +473,7 @@ const App: React.FC = () => {
                         </div>
                     </div>
                   ))}
+                 </div>
                </div>
             </div>
 
@@ -481,6 +483,7 @@ const App: React.FC = () => {
                  <i className="fas fa-box-open text-orange-500"></i> Resources & Insumos
                </h3>
                
+               <div className="table-responsive">
                <div className="grid grid-cols-1 gap-6">
                   <div>
                     <h4 className="text-[10px] font-bold text-blue-600 mb-2 border-b pb-1">MATERIAL</h4>
@@ -523,6 +526,7 @@ const App: React.FC = () => {
                        ))}
                     </div>
                   </div>
+               </div>
                </div>
             </div>
 
