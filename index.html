@@ -1,0 +1,103 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AES Smart Timesheet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&family=Inter:wght@400;700&display=swap');
+      
+      body { 
+        font-family: 'Inter', sans-serif;
+        background-color: #f1f5f9;
+        color: #1e293b;
+        font-size: 14px;
+      }
+
+      .timesheet-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px 10px;
+      }
+
+      .paper-preview {
+        background: #fff;
+        width: 820px;
+        padding: 30px;
+        box-shadow: 0 4px 30px rgba(0,0,0,0.15);
+        border: 1px solid #e2e8f0;
+        position: relative;
+        color: #000;
+      }
+
+      .label-fill {
+        background-color: #d9e1f2;
+        font-weight: bold;
+        color: #000;
+        text-transform: uppercase;
+      }
+
+      .table-header {
+        background-color: #d9e1f2;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-style: italic;
+      }
+
+      .formal-text {
+        color: #000;
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        background-color: #ffffff; 
+        min-height: 1.4em;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 1px 4px;
+      }
+
+      .signature-canvas { 
+        border: 1px solid #cbd5e1; 
+        background: #f8fafc; 
+        cursor: crosshair; 
+      }
+
+      .data-cell-white {
+        background-color: #ffffff;
+      }
+
+      input.formal-text:hover {
+        background-color: #f8faff;
+      }
+      
+      textarea:focus, input:focus {
+        outline: none;
+        background-color: #f0f7ff !important;
+      }
+
+      @media print {
+        .no-print { display: none !important; }
+      }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "@google/genai": "https://esm.sh/@google/genai@^1.35.0",
+    "html2canvas": "https://esm.sh/html2canvas@^1.4.1"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+    <div id="root"></div>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>

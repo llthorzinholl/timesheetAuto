@@ -1,0 +1,8 @@
+
+{
+  "name": "Smart Timesheet AI",
+  "description": "An intelligent timesheet application that extracts job details from screenshots using Gemini AI and generates professional reports with signatures.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
