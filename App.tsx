@@ -105,11 +105,30 @@ const App: React.FC = () => {
       reader.onloadend = async () => {
         const base64 = reader.result as string;
         try {
-          const result = await extractTimesheetData(base64);
+          const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+          let result: any = null;
+          if (isLocal) {
+            // fallback to local client extraction for development
+            result = await extractTimesheetData(base64);
+          } else {
+            // production: call serverless API to keep API key on server
+            const resp = await fetch('/api/extract', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ image: base64 })
+            });
+            if (!resp.ok) {
+              const errBody = await resp.json().catch(() => ({}));
+              console.error('Server extract error', errBody);
+              throw new Error(errBody.error || 'Extraction failed on server');
+            }
+            result = await resp.json();
+          }
           setData({ ...result, supervisorName: SUPERVISOR_FIXED });
           setAppState(AppState.EDITING);
-        } catch (err) {
-          setError("Erro na captura do print. Verifique a imagem.");
+        } catch (err: any) {
+          console.error('Extraction error:', err);
+          setError(err?.message ? String(err.message) : "Erro na captura do print. Verifique a imagem.");
           setAppState(AppState.IDLE);
         } finally {
           setLoading(false);
