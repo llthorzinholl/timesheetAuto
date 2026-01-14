@@ -6,7 +6,7 @@ import { SignaturePad } from './components/SignaturePad';
 import html2canvas from 'html2canvas';
 
 const SUPERVISOR_FIXED = "GABRIEL HENRIQUE DA SILVA";
-const LOGO_URL = "https://images.smart.codes/6e191942-8703-4614-998b-700949392e62";
+const LOGO_URL = "./assets/aes_logo.png";
 
 interface SavedTimesheet {
   id: string;
