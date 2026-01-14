@@ -51,13 +51,13 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // collapse sections by default on mobile for a cleaner view
+    // keep sections expanded by default so Smart Edit is visible on mobile
     setCollapsed({
-      basicInfo: isMobile,
-      labour: isMobile,
-      resources: isMobile,
-      tipping: isMobile,
-      notes: isMobile,
+      basicInfo: false,
+      labour: false,
+      resources: false,
+      tipping: false,
+      notes: false,
     });
   }, [isMobile]);
 
@@ -473,7 +473,7 @@ const App: React.FC = () => {
           </div>
 
           {/* Quick Edit Panel */}
-          <div className="w-full max-w-[820px] bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-6 no-print flex flex-col gap-6 mx-auto">
+          <div className="container-max bg-white rounded-xl shadow-lg border border-slate-200 p-6 sm:p-8 lg:p-10 no-print flex flex-col gap-6 mx-auto overflow-visible">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-2 gap-2">
                 <h2 className="text-xl font-bold flex items-center gap-2">
                    <i className="fas fa-magic text-blue-600"></i> Smart Edit Panel (All Fields)
