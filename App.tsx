@@ -4,9 +4,10 @@ import { extractTimesheetData } from './services/geminiService';
 import { TimesheetData, AppState, TimesheetItem } from './types';
 import { SignaturePad } from './components/SignaturePad';
 import html2canvas from 'html2canvas';
+import logoUrl from './assets/AES-Logo.png';
 
 const SUPERVISOR_FIXED = "GABRIEL HENRIQUE DA SILVA";
-const LOGO_URL = "./assets/aes_logo.png";
+const LOGO_URL = logoUrl;
 
 interface SavedTimesheet {
   id: string;
