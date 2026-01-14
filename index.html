@@ -28,12 +28,23 @@
         background: #fff;
         width: 100%;
         max-width: 820px;
-        padding: clamp(16px, 3.5vw, 30px);
+        padding: clamp(12px, 3.0vw, 28px);
         box-shadow: 0 4px 30px rgba(0,0,0,0.12);
         border: 1px solid #e2e8f0;
         position: relative;
         color: #000;
         box-sizing: border-box;
+      }
+
+      /* Center content containers and constrain width */
+      .container-max {
+        width: 100%;
+        max-width: 820px;
+        margin-left: auto;
+        margin-right: auto;
+        box-sizing: border-box;
+        padding-left: 8px;
+        padding-right: 8px;
       }
 
       /* Ensure large grids can scroll on small screens */
@@ -44,6 +55,11 @@
       .paper-preview .table-responsive {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+      }
+
+      /* allow tables to shrink a bit on small screens but still be scrollable */
+      .paper-preview .table-responsive > * {
+        min-width: 420px;
       }
 
       .label-fill {
@@ -97,12 +113,22 @@
 
       @media (max-width: 640px) {
         body { font-size: 13px; }
-        .paper-preview { padding: 12px; }
+        .paper-preview { padding: 10px; }
         .paper-preview img { height: 40px; }
         .no-print .flex { flex-wrap: wrap; }
         .no-print .gap-2 { gap: 8px; }
         .text-[7px] { font-size: 10px !important; }
         .text-[8px] { font-size: 11px !important; }
+        /* make inputs more compact on mobile */
+        input, textarea { font-size: 13px; }
+        .paper-preview .table-responsive > * { min-width: 340px; }
+        .formal-text { padding: 0 6px; }
+      }
+
+      @media (max-width: 420px) {
+        .paper-preview .table-responsive > * { min-width: 300px; }
+        .paper-preview { padding: 8px; }
+        .text-[7px] { font-size: 9px !important; }
       }
     </style>
 <script type="importmap">
