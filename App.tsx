@@ -227,6 +227,7 @@ const App: React.FC = () => {
               <span className="absolute right-0 top-0 text-red-600 font-mono text-2xl font-bold">{serialNumber}</span>
             </div>
 
+            <div className="table-responsive">
             <div className="border border-black text-[8px] grid grid-cols-[130px_1fr_100px_1fr] mb-2">
               <div className="border-r border-b border-black label-fill p-1">Client:</div>
               <div className="border-r border-b border-black data-cell-white p-0"><EditableField value={data.client} onChange={(v:any) => updateField('client', v)} uppercase /></div>
@@ -252,7 +253,10 @@ const App: React.FC = () => {
               <div className="col-span-3 data-cell-white p-0"><EditableField value={data.description} onChange={(v:any) => updateField('description', v)} uppercase /></div>
             </div>
 
+            </div>
+            </div>
             {/* Time Table */}
+            <div className="table-responsive">
             <div className="border border-black text-[8px] mb-2">
               <div className="grid grid-cols-[200px_80px_80px_100px_80px_1fr] table-header border-b border-black text-center font-bold">
                 <div className="border-r border-black p-0.5 text-left italic">Supervisor:</div>
@@ -290,7 +294,10 @@ const App: React.FC = () => {
               ))}
             </div>
 
+            </div>
+            </div>
             {/* Resources Grid */}
+            <div className="table-responsive">
             <div className="border border-black text-[7px] grid grid-cols-4 mb-2">
               <div className="table-header border-r border-b border-black p-0.5 flex justify-between font-bold">Material <span className="mr-1">QTY</span></div>
               <div className="table-header border-r border-b border-black p-0.5 flex justify-between font-bold">Material <span className="mr-1">QTY</span></div>
@@ -334,7 +341,10 @@ const App: React.FC = () => {
               </div>
             </div>
 
+            </div>
+            </div>
             {/* TIPPING SECTION */}
+            <div className="table-responsive">
             <div className="border border-black text-[7px] mb-2">
                 <div className="label-fill p-1 font-bold italic border-b border-black">Tipping</div>
                 <div className="grid grid-cols-[80px_1fr] border-b border-black h-6">
@@ -371,6 +381,7 @@ const App: React.FC = () => {
                         ))}
                     </div>
                 </div>
+            </div>
             </div>
 
             <div className="border border-black text-[9px] flex h-16 mb-2">
