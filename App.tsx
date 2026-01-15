@@ -540,21 +540,132 @@ const App: React.FC = () => {
               <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Editor Completo</span>
             </div>
 
-            {/* 1. Basic Info */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex flex-col gap-0.5">
-                <label className="text-[9px] font-bold uppercase text-slate-500">Client</label>
-                <input type="text" value={data.client} onChange={e => updateField('client', e.target.value)} className="border p-2 rounded text-sm" />
-              </div>
-              <div className="flex flex-col gap-0.5">
-                <label className="text-[9px] font-bold uppercase text-slate-500">Job No</label>
-                <input type="text" value={data.jobId} onChange={e => updateField('jobId', e.target.value)} className="border p-2 rounded text-xs font-bold" />
-              </div>
-              <div className="flex flex-col gap-0.5">
-                <label className="text-[9px] font-bold uppercase text-slate-500">Date</label>
-                <input type="text" value={data.date} onChange={e => updateField('date', e.target.value)} className="border p-2 rounded text-sm" />
-              </div>
-            </div>
+           {/* ✅ 1. Basic Info */}
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+  <div className="flex flex-col gap-0.5">
+    <label className="text-[9px] font-bold uppercase text-slate-500">Client</label>
+    <input
+      type="text"
+      value={data.client || ""}
+      onChange={e => updateField('client', e.target.value)}
+      className="border p-2 rounded text-sm"
+    />
+  </div>
+
+  <div className="flex flex-col gap-0.5">
+    <label className="text-[9px] font-bold uppercase text-slate-500">Job No</label>
+    <input
+      type="text"
+      value={data.jobId || ""}
+      onChange={e => updateField('jobId', e.target.value)}
+      className="border p-2 rounded text-xs font-bold"
+    />
+  </div>
+
+  <div className="flex flex-col gap-0.5">
+    <label className="text-[9px] font-bold uppercase text-slate-500">Date</label>
+    <input
+      type="text"
+      value={data.date || ""}
+      onChange={e => updateField('date', e.target.value)}
+      className="border p-2 rounded text-sm"
+    />
+  </div>
+
+  {/* ✅ Address */}
+  <div className="md:col-span-3 flex flex-col gap-0.5">
+    <label className="text-[9px] font-bold uppercase text-slate-500">Job Site Address</label>
+    <input
+      type="text"
+      value={data.address || ""}
+      onChange={e => updateField('address', e.target.value)}
+      className="border p-2 rounded text-sm uppercase"
+    />
+  </div>
+
+  {/* ✅ Task Description */}
+  <div className="md:col-span-3 flex flex-col gap-0.5">
+    <label className="text-[9px] font-bold uppercase text-slate-500">Task Description</label>
+    <textarea
+      value={data.description || ""}
+      onChange={e => updateField('description', e.target.value)}
+      className="border p-2 rounded text-sm uppercase min-h-[80px] resize-none"
+    />
+  </div>
+</div>
+
+
+            {/* ✅ Supervisor & Times (TOP ROW) */}
+<div className="border-t pt-4">
+  <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2 uppercase tracking-wide">
+    <i className="fas fa-user-tie text-slate-700"></i> Supervisor & Times
+  </h3>
+
+  <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
+    <div className="md:col-span-2 flex flex-col gap-0.5">
+      <label className="text-[9px] font-bold uppercase text-slate-500">Supervisor Name</label>
+      <input
+        type="text"
+        value={data.supervisorName || ""}
+        onChange={e => updateField('supervisorName', e.target.value)}
+        className="border p-2 rounded text-xs font-bold uppercase"
+      />
+    </div>
+
+    <div className="flex flex-col gap-0.5">
+      <label className="text-[9px] font-bold uppercase text-slate-500">Start</label>
+      <input
+        type="text"
+        value={data.startTime || ""}
+        onChange={e => updateField('startTime', e.target.value)}
+        className="border p-2 rounded text-sm text-center"
+      />
+    </div>
+
+    <div className="flex flex-col gap-0.5">
+      <label className="text-[9px] font-bold uppercase text-slate-500">Finish</label>
+      <input
+        type="text"
+        value={data.finishTime || ""}
+        onChange={e => updateField('finishTime', e.target.value)}
+        className="border p-2 rounded text-sm text-center"
+      />
+    </div>
+
+    <div className="flex flex-col gap-0.5">
+      <label className="text-[9px] font-bold uppercase text-slate-500">Travel</label>
+      <input
+        type="text"
+        value={data.travelTime || ""}
+        onChange={e => updateField('travelTime', e.target.value)}
+        className="border p-2 rounded text-sm text-center"
+      />
+    </div>
+
+    <div className="flex flex-col gap-0.5">
+      <label className="text-[9px] font-bold uppercase text-slate-500">Total</label>
+      <input
+        type="text"
+        value={data.totalTime || ""}
+        onChange={e => updateField('totalTime', e.target.value)}
+        className="border p-2 rounded text-sm text-center font-bold"
+      />
+    </div>
+  </div>
+
+  {/* (Opcional) Allowances do Supervisor */}
+  <div className="mt-3 flex flex-col gap-0.5">
+    <label className="text-[9px] font-bold uppercase text-slate-500">Supervisor Allowances</label>
+    <input
+      type="text"
+      value={getItemQty('Supervisor Allowances')}
+      onChange={e => updateItemQty('Supervisor Allowances', e.target.value)}
+      className="border p-2 rounded text-sm text-center"
+      placeholder="Ex: Meal, Parking, etc"
+    />
+  </div>
+</div>
+
 
             {/* 2. Labour Section Edit */}
             <div className="border-t pt-4">
