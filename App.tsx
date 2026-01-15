@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { extractTimesheetData } from './services/geminiService';
 import { TimesheetData, AppState } from './types';
 import { SignaturePad } from './components/SignaturePad';
-import domtoimage from 'https://esm.sh/dom-to-image@^2.6.0';
+import domtoimage from "dom-to-image";
+
 
 const SUPERVISOR_FIXED = "GABRIEL HENRIQUE DA SILVA";
 const LOGO_URL = "/assets/AES-Logo (1).png";
@@ -25,7 +26,38 @@ const App: React.FC = () => {
   const [supervisorSignature, setSupervisorSignature] = useState<string | null>(null);
   const [serialNumber, setSerialNumber] = useState<number>(21215);
   const [history, setHistory] = useState<SavedTimesheet[]>([]);
+  const [breakValue, setBreakValue] = useState<string>("");
   const timesheetRef = useRef<HTMLDivElement>(null);
+
+  // ✅ Parse time inputs like "7:30", "07:30", "7.5" (hours), "7"
+const parseToMinutes = (value: string): number | null => {
+  const v = (value || "").trim();
+  if (!v) return null;
+
+  // HH:MM
+  if (v.includes(":")) {
+    const [hStr, mStr] = v.split(":");
+    const h = Number(hStr);
+    const m = Number(mStr);
+    if (!Number.isFinite(h) || !Number.isFinite(m)) return null;
+    if (m < 0 || m >= 60) return null;
+    return Math.round(h * 60 + m);
+  }
+
+  // Decimal hours (e.g. 7.5) or integer (e.g. 8)
+  const hours = Number(v.replace(",", "."));
+  if (!Number.isFinite(hours)) return null;
+  return Math.round(hours * 60);
+};
+
+// ✅ Format minutes to decimal hours string (e.g. 450 -> "7.5", 480 -> "8")
+const minutesToHoursString = (mins: number): string => {
+  const hours = mins / 60;
+  const fixed = hours.toFixed(2);
+  // remove trailing zeros
+  return fixed.replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
+};
+
 
   useEffect(() => {
     const savedSerial = localStorage.getItem('aes_timesheet_serial');
@@ -65,32 +97,61 @@ const App: React.FC = () => {
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setLoading(true);
-    setAppState(AppState.SCANNING);
-    setError(null);
-    try {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64 = reader.result as string;
-        try {
-          const result = await extractTimesheetData(base64);
-          setData({ ...result, supervisorName: SUPERVISOR_FIXED });
-          setAppState(AppState.EDITING);
-        } catch (err) {
-          setError("Erro na captura do print. Verifique a imagem.");
-          setAppState(AppState.IDLE);
-        } finally {
-          setLoading(false);
-        }
-      };
-      reader.readAsDataURL(file);
-    } catch (err) {
-      setLoading(false);
-      setError("Falha ao ler o arquivo.");
-    }
-  };
+  if (loading) return; // 🚫 evita múltiplos envios (429)
+  
+  const file = e.target.files?.[0];
+  e.target.value = ""; // ✅ evita disparo duplo com o mesmo arquivo
+  if (!file) return;
+
+  setLoading(true);
+  setAppState(AppState.SCANNING);
+  setError(null);
+
+  try {
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64 = reader.result as string;
+      try {
+        const result = await extractTimesheetData(base64);
+        setData({ ...result, supervisorName: SUPERVISOR_FIXED });
+        setAppState(AppState.EDITING);
+      } catch (err) {
+        setError("Erro na captura do print. Verifique a imagem.");
+        setAppState(AppState.IDLE);
+      } finally {
+        setLoading(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  } catch (err) {
+    setLoading(false);
+    setError("Falha ao ler o arquivo.");
+  }
+};
+
+
+  useEffect(() => {
+  if (!data) return;
+
+  const startMins = parseToMinutes(data.startTime || "");
+  const finishMins = parseToMinutes(data.finishTime || "");
+  if (startMins === null || finishMins === null) return;
+
+  // if finish < start, assume crossed midnight
+  let diff = finishMins - startMins;
+  if (diff < 0) diff += 24 * 60;
+
+  const breakMins = parseToMinutes(breakValue || "") ?? 0;
+  const finalMins = Math.max(0, diff - breakMins);
+
+  const calculated = minutesToHoursString(finalMins);
+
+  // Avoid infinite loop: only update if changed
+  if ((data.totalTime || "") !== calculated) {
+    setData(prev => prev ? ({ ...prev, totalTime: calculated }) : prev);
+  }
+}, [data?.startTime, data?.finishTime, breakValue]);
+
 
   const updateField = (field: keyof TimesheetData, value: any) => {
     if (!data) return;
@@ -643,14 +704,27 @@ const App: React.FC = () => {
     </div>
 
     <div className="flex flex-col gap-0.5">
-      <label className="text-[9px] font-bold uppercase text-slate-500">Total</label>
-      <input
-        type="text"
-        value={data.totalTime || ""}
-        onChange={e => updateField('totalTime', e.target.value)}
-        className="border p-2 rounded text-sm text-center font-bold"
-      />
-    </div>
+  <label className="text-[9px] font-bold uppercase text-slate-500">Break</label>
+  <input
+    type="text"
+    value={breakValue}
+    onChange={e => setBreakValue(e.target.value)}
+    className="border p-2 rounded text-sm text-center"
+    placeholder="0.5 ou 00:30"
+  />
+</div>
+
+<div className="flex flex-col gap-0.5">
+  <label className="text-[9px] font-bold uppercase text-slate-500">Total</label>
+  <input
+    type="text"
+    value={data.totalTime || ""}
+    readOnly
+    className="border p-2 rounded text-sm text-center font-bold bg-slate-50"
+    title="Calculado automaticamente: (Finish - Start) - Break"
+  />
+</div>
+
   </div>
 
   {/* (Opcional) Allowances do Supervisor */}
