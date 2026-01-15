@@ -4,10 +4,9 @@ import { extractTimesheetData } from './services/geminiService';
 import { TimesheetData, AppState, TimesheetItem } from './types';
 import { SignaturePad } from './components/SignaturePad';
 import html2canvas from 'html2canvas';
-import logoUrl from './assets/AES-Logo.png';
 
 const SUPERVISOR_FIXED = "GABRIEL HENRIQUE DA SILVA";
-const LOGO_URL = logoUrl;
+const LOGO_URL = "https://images.smart.codes/6e191942-8703-4614-998b-700949392e62";
 
 interface SavedTimesheet {
   id: string;
@@ -28,15 +27,6 @@ const App: React.FC = () => {
   const [serialNumber, setSerialNumber] = useState<number>(21215);
   const [history, setHistory] = useState<SavedTimesheet[]>([]);
   const timesheetRef = useRef<HTMLDivElement>(null);
-  const [isMobile, setIsMobile] = useState<boolean>(false);
-  const [slideIndex, setSlideIndex] = useState<number>(0);
-  const [collapsed, setCollapsed] = useState({
-    basicInfo: false,
-    labour: false,
-    resources: false,
-    tipping: false,
-    notes: false,
-  });
 
   useEffect(() => {
     const savedSerial = localStorage.getItem('aes_timesheet_serial');
@@ -44,26 +34,7 @@ const App: React.FC = () => {
 
     const savedHistory = localStorage.getItem('aes_timesheet_history');
     if (savedHistory) setHistory(JSON.parse(savedHistory));
-    const onResize = () => setIsMobile(window.innerWidth < 640);
-    onResize();
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
   }, []);
-
-  useEffect(() => {
-    // keep sections expanded by default so Smart Edit is visible on mobile
-    setCollapsed({
-      basicInfo: false,
-      labour: false,
-      resources: false,
-      tipping: false,
-      notes: false,
-    });
-  }, [isMobile]);
-
-  const toggleSection = (key: keyof typeof collapsed) => {
-    setCollapsed(prev => ({ ...prev, [key]: !prev[key] }));
-  };
 
   const saveToHistory = () => {
     if (!data) return;
@@ -105,30 +76,11 @@ const App: React.FC = () => {
       reader.onloadend = async () => {
         const base64 = reader.result as string;
         try {
-          const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-          let result: any = null;
-          if (isLocal) {
-            // fallback to local client extraction for development
-            result = await extractTimesheetData(base64);
-          } else {
-            // production: call serverless API to keep API key on server
-            const resp = await fetch('/api/extract', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ image: base64 })
-            });
-            if (!resp.ok) {
-              const errBody = await resp.json().catch(() => ({}));
-              console.error('Server extract error', errBody);
-              throw new Error(errBody.error || 'Extraction failed on server');
-            }
-            result = await resp.json();
-          }
+          const result = await extractTimesheetData(base64);
           setData({ ...result, supervisorName: SUPERVISOR_FIXED });
           setAppState(AppState.EDITING);
-        } catch (err: any) {
-          console.error('Extraction error:', err);
-          setError(err?.message ? String(err.message) : "Erro na captura do print. Verifique a imagem.");
+        } catch (err) {
+          setError("Erro na captura do print. Verifique a imagem.");
           setAppState(AppState.IDLE);
         } finally {
           setLoading(false);
@@ -202,7 +154,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="timesheet-container pb-20 px-3 sm:px-4">
+    <div className="timesheet-container pb-20">
       <header className="w-full max-w-[820px] mb-8 flex justify-between items-center bg-white p-4 rounded-lg shadow-sm border border-slate-200 no-print">
         <div className="flex items-center gap-3">
           <img src={LOGO_URL} alt="AES Logo" className="h-10 object-contain" crossOrigin="anonymous" />
@@ -262,7 +214,7 @@ const App: React.FC = () => {
           <div ref={timesheetRef} className="paper-preview border-b-[6px] border-[#001f5c]">
             <div className="flex justify-between items-start mb-2">
               <img src={LOGO_URL} alt="AES Logo" className="h-14 object-contain" crossOrigin="anonymous" />
-              <div className="text-[7px] text-center sm:text-right text-slate-800 leading-tight">
+              <div className="text-[7px] text-right text-slate-800 leading-tight">
                 Address: 52, 49-51 Mitchell Road, Brookvale NSW 2100<br/>
                 Phone: 1300 237 287<br/>
                 Email: info@aesaus.com.au Website: www.aesaus.com.au
@@ -274,7 +226,6 @@ const App: React.FC = () => {
               <span className="absolute right-0 top-0 text-red-600 font-mono text-2xl font-bold">{serialNumber}</span>
             </div>
 
-            <div className="table-responsive">
             <div className="border border-black text-[8px] grid grid-cols-[130px_1fr_100px_1fr] mb-2">
               <div className="border-r border-b border-black label-fill p-1">Client:</div>
               <div className="border-r border-b border-black data-cell-white p-0"><EditableField value={data.client} onChange={(v:any) => updateField('client', v)} uppercase /></div>
@@ -300,9 +251,7 @@ const App: React.FC = () => {
               <div className="col-span-3 data-cell-white p-0"><EditableField value={data.description} onChange={(v:any) => updateField('description', v)} uppercase /></div>
             </div>
 
-            </div>
             {/* Time Table */}
-            <div className="table-responsive">
             <div className="border border-black text-[8px] mb-2">
               <div className="grid grid-cols-[200px_80px_80px_100px_80px_1fr] table-header border-b border-black text-center font-bold">
                 <div className="border-r border-black p-0.5 text-left italic">Supervisor:</div>
@@ -340,9 +289,7 @@ const App: React.FC = () => {
               ))}
             </div>
 
-            </div>
             {/* Resources Grid */}
-            <div className="table-responsive">
             <div className="border border-black text-[7px] grid grid-cols-4 mb-2">
               <div className="table-header border-r border-b border-black p-0.5 flex justify-between font-bold">Material <span className="mr-1">QTY</span></div>
               <div className="table-header border-r border-b border-black p-0.5 flex justify-between font-bold">Material <span className="mr-1">QTY</span></div>
@@ -384,11 +331,9 @@ const App: React.FC = () => {
                   </div>
                 ))}
               </div>
-              </div>
-
             </div>
+
             {/* TIPPING SECTION */}
-            <div className="table-responsive">
             <div className="border border-black text-[7px] mb-2">
                 <div className="label-fill p-1 font-bold italic border-b border-black">Tipping</div>
                 <div className="grid grid-cols-[80px_1fr] border-b border-black h-6">
@@ -425,7 +370,6 @@ const App: React.FC = () => {
                         ))}
                     </div>
                 </div>
-            </div>
             </div>
 
             <div className="border border-black text-[9px] flex h-16 mb-2">
@@ -473,147 +417,119 @@ const App: React.FC = () => {
           </div>
 
           {/* Quick Edit Panel */}
-          <div className="container-max bg-white rounded-xl shadow-lg border border-slate-200 p-6 sm:p-8 lg:p-10 no-print flex flex-col gap-6 mx-auto overflow-visible">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-2 gap-2">
+          <div className="w-full max-w-[820px] bg-white rounded-xl shadow-lg border border-slate-200 p-6 no-print flex flex-col gap-8">
+            <div className="flex justify-between items-center border-b pb-2">
                 <h2 className="text-xl font-bold flex items-center gap-2">
                    <i className="fas fa-magic text-blue-600"></i> Smart Edit Panel (All Fields)
                 </h2>
                 <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Editor Completo</span>
             </div>
             
-            {/* 1. Basic Info (collapsible) */}
-            <div className="border-t pt-4">
-              <button type="button" className="w-full flex justify-between items-center" onClick={() => toggleSection('basicInfo')}>
-                <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2 uppercase tracking-wide">
-                  <i className="fas fa-info-circle text-blue-500"></i> Basic Info
-                </h3>
-                <span className="text-slate-400">{collapsed.basicInfo ? '▸' : '▾'}</span>
-              </button>
-              {!collapsed.basicInfo && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="flex flex-col gap-0.5">
-                    <label className="text-[9px] font-bold uppercase text-slate-500">Client</label>
-                    <input type="text" value={data.client} onChange={e => updateField('client', e.target.value)} className="border p-2 rounded text-xs" />
-                  </div>
-                  <div className="flex flex-col gap-0.5">
-                    <label className="text-[9px] font-bold uppercase text-slate-500">Job No</label>
-                    <input type="text" value={data.jobId} onChange={e => updateField('jobId', e.target.value)} className="border p-2 rounded text-xs font-bold" />
-                  </div>
-                  <div className="flex flex-col gap-0.5">
-                    <label className="text-[9px] font-bold uppercase text-slate-500">Date</label>
-                    <input type="text" value={data.date} onChange={e => updateField('date', e.target.value)} className="border p-2 rounded text-xs" />
-                  </div>
-                </div>
-              )}
+            {/* 1. Basic Info */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="flex flex-col gap-0.5">
+                <label className="text-[9px] font-bold uppercase text-slate-500">Client</label>
+                <input type="text" value={data.client} onChange={e => updateField('client', e.target.value)} className="border p-2 rounded text-xs" />
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <label className="text-[9px] font-bold uppercase text-slate-500">Job No</label>
+                <input type="text" value={data.jobId} onChange={e => updateField('jobId', e.target.value)} className="border p-2 rounded text-xs font-bold" />
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <label className="text-[9px] font-bold uppercase text-slate-500">Date</label>
+                <input type="text" value={data.date} onChange={e => updateField('date', e.target.value)} className="border p-2 rounded text-xs" />
+              </div>
             </div>
 
-            {/* 2. Labour Section Edit (collapsible) */}
+            {/* 2. Labour Section Edit */}
             <div className="border-t pt-4">
-              <button type="button" className="w-full flex justify-between items-center" onClick={() => toggleSection('labour')}>
-                <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2 uppercase tracking-wide">
+               <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2 uppercase tracking-wide">
                  <i className="fas fa-users text-blue-500"></i> Labour & Times
-                </h3>
-                <span className="text-slate-400">{collapsed.labour ? '▸' : '▾'}</span>
-              </button>
-              {!collapsed.labour && (
-              <div className="table-responsive">
-                <div className="grid grid-cols-1 gap-2">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="grid grid-cols-1 md:grid-cols-6 gap-2 items-end border-b pb-2 border-slate-50">
-                    <div className="col-span-2">
-                      <label className="text-[8px] text-slate-400 uppercase font-bold">Labourer Name {i+1}</label>
-                      <input type="text" value={getItemQty(`L_N_${i}`)} onChange={e => updateItemQty(`L_N_${i}`, e.target.value)} className="w-full border p-1 rounded text-[10px]" />
+               </h3>
+               <div className="grid grid-cols-1 gap-2">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="grid grid-cols-6 gap-2 items-end border-b pb-2 border-slate-50">
+                        <div className="col-span-2">
+                           <label className="text-[8px] text-slate-400 uppercase font-bold">Labourer Name {i+1}</label>
+                           <input type="text" value={getItemQty(`L_N_${i}`)} onChange={e => updateItemQty(`L_N_${i}`, e.target.value)} className="w-full border p-1 rounded text-[10px]" />
+                        </div>
+                        <div>
+                           <label className="text-[8px] text-slate-400 uppercase font-bold">Start</label>
+                           <input type="text" value={getItemQty(`L_S_${i}`)} onChange={e => updateItemQty(`L_S_${i}`, e.target.value)} className="w-full border p-1 rounded text-[10px]" />
+                        </div>
+                        <div>
+                           <label className="text-[8px] text-slate-400 uppercase font-bold">Finish</label>
+                           <input type="text" value={getItemQty(`L_F_${i}`)} onChange={e => updateItemQty(`L_F_${i}`, e.target.value)} className="w-full border p-1 rounded text-[10px]" />
+                        </div>
+                        <div>
+                           <label className="text-[8px] text-slate-400 uppercase font-bold">Travel</label>
+                           <input type="text" value={getItemQty(`L_T_${i}`)} onChange={e => updateItemQty(`L_T_${i}`, e.target.value)} className="w-full border p-1 rounded text-[10px]" />
+                        </div>
+                        <div>
+                           <label className="text-[8px] text-slate-400 uppercase font-bold">Total</label>
+                           <input type="text" value={getItemQty(`L_TOT_${i}`)} onChange={e => updateItemQty(`L_TOT_${i}`, e.target.value)} className="w-full border p-1 rounded text-[10px] font-bold" />
+                        </div>
                     </div>
-                    <div>
-                      <label className="text-[8px] text-slate-400 uppercase font-bold">Start</label>
-                      <input type="text" value={getItemQty(`L_S_${i}`)} onChange={e => updateItemQty(`L_S_${i}`, e.target.value)} className="w-full border p-1 rounded text-[10px]" />
-                    </div>
-                    <div>
-                      <label className="text-[8px] text-slate-400 uppercase font-bold">Finish</label>
-                      <input type="text" value={getItemQty(`L_F_${i}`)} onChange={e => updateItemQty(`L_F_${i}`, e.target.value)} className="w-full border p-1 rounded text-[10px]" />
-                    </div>
-                    <div>
-                      <label className="text-[8px] text-slate-400 uppercase font-bold">Travel</label>
-                      <input type="text" value={getItemQty(`L_T_${i}`)} onChange={e => updateItemQty(`L_T_${i}`, e.target.value)} className="w-full border p-1 rounded text-[10px]" />
-                    </div>
-                    <div>
-                      <label className="text-[8px] text-slate-400 uppercase font-bold">Total</label>
-                      <input type="text" value={getItemQty(`L_TOT_${i}`)} onChange={e => updateItemQty(`L_TOT_${i}`, e.target.value)} className="w-full border p-1 rounded text-[10px] font-bold" />
-                    </div>
-                  </div>
-                ))}
-                </div>
-              </div>
-              )}
+                  ))}
+               </div>
             </div>
 
-            {/* 3. Materials, Plant & Environmental Edit (collapsible) */}
+            {/* 3. Materials, Plant & Environmental Edit */}
             <div className="border-t pt-4">
-              <button type="button" className="w-full flex justify-between items-center" onClick={() => toggleSection('resources')}>
-                <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2 uppercase tracking-wide">
+               <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2 uppercase tracking-wide">
                  <i className="fas fa-box-open text-orange-500"></i> Resources & Insumos
-                </h3>
-                <span className="text-slate-400">{collapsed.resources ? '▸' : '▾'}</span>
-              </button>
-              {!collapsed.resources && (
-              <div className="table-responsive">
-              <div className="grid grid-cols-1 gap-6">
-                <div>
-                  <h4 className="text-[10px] font-bold text-blue-600 mb-2 border-b pb-1">MATERIAL</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
-                    {['Black plastic', 'Clear plastic', 'Asbestos bags', 'Duct tape', 'D/sided tape', 'Hazard tape', 'Coveralls', 'Gloves', 'Boot covers', 'P2 respirators', 'Pre-filters', 'Pump box filters', 'Vacuum bags', 'Geo-fabric', 'HEPA filters'].map(m => (
-                      <div key={m} className="flex flex-col">
-                        <label className="text-[8px] text-slate-400 uppercase font-bold truncate">{m}</label>
-                        <input type="text" value={getItemQty(m)} onChange={e => updateItemQty(m, e.target.value)} className="border p-1 rounded text-[10px]" />
-                      </div>
-                    ))}
+               </h3>
+               
+               <div className="grid grid-cols-1 gap-6">
+                  <div>
+                    <h4 className="text-[10px] font-bold text-blue-600 mb-2 border-b pb-1">MATERIAL</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                       {['Black plastic', 'Clear plastic', 'Asbestos bags', 'Duct tape', 'D/sided tape', 'Hazard tape', 'Coveralls', 'Gloves', 'Boot covers', 'P2 respirators', 'Pre-filters', 'Pump box filters', 'Vacuum bags', 'Geo-fabric', 'HEPA filters'].map(m => (
+                          <div key={m} className="flex flex-col">
+                             <label className="text-[8px] text-slate-400 uppercase font-bold truncate">{m}</label>
+                             <input type="text" value={getItemQty(m)} onChange={e => updateItemQty(m, e.target.value)} className="border p-1 rounded text-[10px]" />
+                          </div>
+                       ))}
+                    </div>
                   </div>
-                </div>
 
-                <div>
-                  <h4 className="text-[10px] font-bold text-orange-600 mb-2 border-b pb-1">PLANT & EQUIPMENT</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
-                    {['Decontamination Unit', 'Decontamination Trailer', 'Portable wash station', 'Negative air unit', 'HEPA vacuum', 'Airless spray', 'Platform ladder', 'Wet vacuum', 'Generator - 2 KVA', 'Generator - 7 KVA', '2t truck', '6t truck', 'HP washer', 'Floor stripper', 'Dehumidifier', 'Air mover', 'Air Purifier', 'Fencing'].map(m => (
-                      <div key={m} className="flex flex-col">
-                        <label className="text-[8px] text-slate-400 uppercase font-bold truncate">{m}</label>
-                        <input type="text" value={getItemQty(m)} onChange={e => updateItemQty(m, e.target.value)} className="border p-1 rounded text-[10px]" />
-                      </div>
-                    ))}
+                  <div>
+                    <h4 className="text-[10px] font-bold text-orange-600 mb-2 border-b pb-1">PLANT & EQUIPMENT</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                       {['Decontamination Unit', 'Decontamination Trailer', 'Portable wash station', 'Negative air unit', 'HEPA vacuum', 'Airless spray', 'Platform ladder', 'Wet vacuum', 'Generator - 2 KVA', 'Generator - 7 KVA', '2t truck', '6t truck', 'HP washer', 'Floor stripper', 'Dehumidifier', 'Air mover', 'Air Purifier', 'Fencing'].map(m => (
+                          <div key={m} className="flex flex-col">
+                             <label className="text-[8px] text-slate-400 uppercase font-bold truncate">{m}</label>
+                             <input type="text" value={getItemQty(m)} onChange={e => updateItemQty(m, e.target.value)} className="border p-1 rounded text-[10px]" />
+                          </div>
+                       ))}
+                    </div>
                   </div>
-                </div>
 
-                <div>
-                  <h4 className="text-[10px] font-bold text-green-600 mb-2 border-b pb-1">ENVIRONMENTAL & OTHER</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
-                    {['Air monitoring', 'Air clearance monitoring', 'Clearance Inspection', 'Asbestos sample analysis', 'Mould sample analysis'].map(m => (
-                      <div key={m} className="flex flex-col">
-                        <label className="text-[8px] text-slate-400 uppercase font-bold truncate">{m}</label>
-                        <input type="text" value={getItemQty(m)} onChange={e => updateItemQty(m, e.target.value)} className="border p-1 rounded text-[10px]" />
-                      </div>
-                    ))}
-                    {[6, 7, 8, 9, 10, 11].map(idx => (
-                     <div key={idx} className="flex flex-col">
-                       <label className="text-[8px] text-slate-400 uppercase font-bold">Other Qty {idx-5}</label>
-                       <input type="text" value={getItemQty(`Env_Other_${idx}`)} onChange={e => updateItemQty(`Env_Other_${idx}`, e.target.value)} className="border p-1 rounded text-[10px]" />
-                     </div>
-                    ))}
+                  <div>
+                    <h4 className="text-[10px] font-bold text-green-600 mb-2 border-b pb-1">ENVIRONMENTAL & OTHER</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                       {['Air monitoring', 'Air clearance monitoring', 'Clearance Inspection', 'Asbestos sample analysis', 'Mould sample analysis'].map(m => (
+                          <div key={m} className="flex flex-col">
+                             <label className="text-[8px] text-slate-400 uppercase font-bold truncate">{m}</label>
+                             <input type="text" value={getItemQty(m)} onChange={e => updateItemQty(m, e.target.value)} className="border p-1 rounded text-[10px]" />
+                          </div>
+                       ))}
+                       {[6, 7, 8, 9, 10, 11].map(idx => (
+                         <div key={idx} className="flex flex-col">
+                            <label className="text-[8px] text-slate-400 uppercase font-bold">Other Qty {idx-5}</label>
+                            <input type="text" value={getItemQty(`Env_Other_${idx}`)} onChange={e => updateItemQty(`Env_Other_${idx}`, e.target.value)} className="border p-1 rounded text-[10px]" />
+                         </div>
+                       ))}
+                    </div>
                   </div>
-                </div>
-              </div>
-              </div>
-              )}
+               </div>
             </div>
 
-            {/* 4. Tipping Edit (Including 5 KG fields) - collapsible */}
+            {/* 4. Tipping Edit (Including 5 KG fields) */}
             <div className="border-t pt-4">
-              <button type="button" className="w-full flex justify-between items-center" onClick={() => toggleSection('tipping')}>
-                <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2 uppercase tracking-wide">
-                   <i className="fas fa-truck text-slate-500"></i> Tipping Details
-                </h3>
-                <span className="text-slate-400">{collapsed.tipping ? '▸' : '▾'}</span>
-              </button>
-              {!collapsed.tipping && (
-              <>
+              <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2 uppercase tracking-wide">
+                 <i className="fas fa-truck text-slate-500"></i> Tipping Details
+              </h3>
               <div className="flex flex-wrap gap-4 mb-3 p-3 bg-slate-50 rounded">
                 <span className="text-[10px] font-bold text-slate-500 w-full">Waste Types:</span>
                 {['Asbestos', 'Asbestos Soil', 'Lead', 'GSW', 'Brick/concrete', 'Other'].map(type => (
@@ -623,7 +539,7 @@ const App: React.FC = () => {
                    </label>
                 ))}
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2 mb-4">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-4">
                 {[1, 2, 3, 4, 5].map(i => (
                   <div key={i} className="flex flex-col gap-0.5">
                      <label className="text-[9px] font-bold text-slate-500 uppercase">KG {i}</label>
@@ -644,20 +560,10 @@ const App: React.FC = () => {
                  <label className="text-[9px] font-bold text-slate-500 uppercase">Other Facility Name</label>
                  <input type="text" value={getItemQty('Waste_Fac_Other')} onChange={e => updateItemQty('Waste_Fac_Other', e.target.value)} className="border p-2 rounded text-xs" />
               </div>
-              </>
-              )}
             </div>
 
-            {/* 5. Notes & Signatures Info (collapsible) */}
-            <div className="border-t pt-4">
-              <button type="button" className="w-full flex justify-between items-center" onClick={() => toggleSection('notes')}>
-                <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2 uppercase tracking-wide">
-                   <i className="fas fa-pen-fancy text-slate-600"></i> Notes & Signatures
-                </h3>
-                <span className="text-slate-400">{collapsed.notes ? '▸' : '▾'}</span>
-              </button>
-              {!collapsed.notes && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* 5. Notes & Signatures Info */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
                <div className="flex flex-col gap-1">
                  <label className="text-[9px] font-bold text-slate-500 uppercase">Notes / Variations</label>
                  <textarea value={data.notes} onChange={e => updateField('notes', e.target.value)} className="border p-2 rounded text-xs h-24" />
@@ -672,8 +578,6 @@ const App: React.FC = () => {
                     <input type="text" value={data.supervisorName} onChange={e => updateField('supervisorName', e.target.value)} className="border p-2 rounded text-xs" />
                  </div>
                </div>
-              </div>
-              )}
             </div>
           </div>
         </div>
