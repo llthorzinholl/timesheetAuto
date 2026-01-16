@@ -41,16 +41,17 @@
   }
 
   .paper-preview {
-    background: #fff;
-    width: 100%;
-    max-width: 820px;
-    padding: 30px;
-    box-shadow: 0 4px 30px rgba(0,0,0,0.15);
-    border: 1px solid #e2e8f0;
-    position: relative;
-    color: #000;
-    overflow: hidden; /* ✅ sem scroll aqui */
-  }
+  background: #fff;
+  width: 210mm;          /* ✅ A4 width */
+  min-height: 297mm;     /* ✅ A4 height */
+  padding: 12mm;        /* margem interna realista */
+  box-shadow: 0 4px 30px rgba(0,0,0,0.15);
+  border: 1px solid #e2e8f0;
+  color: #000;
+  position: relative;
+  overflow: visible;
+}
+
 
   .label-fill {
     background-color: #d9e1f2;

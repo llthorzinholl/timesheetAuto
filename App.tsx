@@ -555,75 +555,85 @@ const minutesToHoursString = (mins: number): string => {
                   </div>
                 </div>
 
-                <div className="border border-black grid grid-cols-[1fr_1fr] text-[9px]">
-                  <div className="grid grid-rows-2 h-16 divide-y divide-black border-r border-black">
-                    <div className="grid grid-cols-[120px_1fr] h-full">
-                      <div className="label-fill p-1 font-bold border-r border-black flex items-center leading-tight italic">Supervisor's Name:</div>
-                      <div className="data-cell-white p-0 flex items-center">
-                        <EditableField value={data.supervisorName} onChange={(v: any) => updateField('supervisorName', v)} uppercase className="font-bold" />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-[120px_1fr] h-full">
-                      <div className="label-fill p-1 font-bold border-r border-black flex items-center leading-tight italic">Client Representative Name:</div>
-                      <div className="data-cell-white p-0 flex items-center">
-                        <EditableField value={data.clientRepName} onChange={(v: any) => updateField('clientRepName', v)} uppercase className="font-bold" />
-                      </div>
-                    </div>
-                  </div>
+                {/* ✅ SIGNATURES (auto height = equalize to smallest row) */}
+<div className="border border-black grid grid-cols-2 text-[9px]">
+  {/* LEFT COLUMN */}
+  <div className="grid grid-rows-2 divide-y divide-black border-r border-black">
+    <div className="grid grid-cols-[120px_1fr] grid-rows-[50px_1fr]">
+      <div className="label-fill px-2 py-1 font-bold border-r border-black flex items-center italic">
+        SUPERVISOR&apos;S NAME:
+      </div>
+      <div className="data-cell-white p-0 flex items-center">
+        <EditableField
+          value={data.supervisorName}
+          onChange={(v: any) => updateField("supervisorName", v)}
+          uppercase
+          className="font-bold"
+        />
+      </div>
+    </div>
 
-                  <div className="grid grid-rows-2 h-16 divide-y divide-black">
-                    <div className="grid grid-cols-[120px_1fr] h-full">
-                      <div className="label-fill p-1 font-bold border-r border-black flex items-center leading-tight italic">Supervisor's Signature:</div>
-                      <div
-  className="p-0.5 bg-white cursor-pointer flex items-center justify-center"
-  style={{ height: "100%", minHeight: 56 }}  // ✅ garante altura do campo
-  onClick={() => setAppState(AppState.SIGNING)}
->
-  {supervisorSignature ? (
-    <img
-      src={supervisorSignature}
-      alt="s-sign"
-      style={{
-        maxWidth: "100%",
-        maxHeight: "100%",
-        width: "100%",
-        height: "100%",
-        objectFit: "contain" // ✅ não corta
-      }}
-    />
-  ) : (
-    <span className="text-[6px] text-slate-300 italic">Click to sign</span>
-  )}
+    <div className="grid grid-cols-[120px_1fr] grid-rows-[50px_1fr]">
+      <div className="label-fill px-2 py-1 font-bold border-r border-black flex items-center italic">
+        CLIENT REP NAME:
+      </div>
+      <div className="data-cell-white p-0 flex items-center">
+        <EditableField
+          value={data.clientRepName}
+          onChange={(v: any) => updateField("clientRepName", v)}
+          uppercase
+          className="font-bold"
+        />
+      </div>
+    </div>
+  </div>
+
+  {/* RIGHT COLUMN */}
+  <div className="grid grid-rows-2 divide-y divide-black">
+    <div className="grid grid-cols-[120px_1fr] grid-rows-[50px_1fr]">
+      <div className="label-fill px-2 py-1 font-bold border-r border-black flex items-center italic">
+        SUPERVISOR&apos;S SIGNATURE:
+      </div>
+
+      <div
+        className="bg-white cursor-pointer flex items-center justify-center overflow-hidden"
+        onClick={() => setAppState(AppState.SIGNING)}
+      >
+        {supervisorSignature ? (
+          <img
+             src={supervisorSignature}
+             className="max-h-[40px] w-full object-contain"
+              />
+
+        ) : (
+          <span className="text-[7px] text-slate-300 italic">Click to sign</span>
+        )}
+      </div>
+    </div>
+
+    <div className="grid grid-cols-[120px_1fr]">
+      <div className="label-fill px-2 py-1 font-bold border-r border-black flex items-center italic">
+        CLIENTSIGNATURE:
+      </div>
+
+      <div
+        className="bg-white cursor-pointer flex items-center justify-center overflow-hidden"
+        onClick={() => setAppState(AppState.SIGNING)}
+      >
+        {mySignature ? (
+          <img
+              src={mySignature}
+              className="max-h-[40px] w-full object-contain"
+              />
+
+        ) : (
+          <span className="text-[7px] text-slate-300 italic">Click to sign</span>
+        )}
+      </div>
+    </div>
+  </div>
 </div>
 
-                    </div>
-                    <div className="grid grid-cols-[120px_1fr] h-full">
-                      <div className="label-fill p-1 font-bold border-r border-black flex items-center leading-tight italic">Client Representative Signature:</div>
-                      <div
-  className="p-0.5 bg-white cursor-pointer flex items-center justify-center"
-  style={{ height: "100%", minHeight: 56 }} // ✅ garante altura do campo
-  onClick={() => setAppState(AppState.SIGNING)}
->
-  {mySignature ? (
-    <img
-      src={mySignature}
-      alt="c-sign"
-      style={{
-        maxWidth: "100%",
-        maxHeight: "100%",
-        width: "100%",
-        height: "100%",
-        objectFit: "contain" // ✅ não corta
-      }}
-    />
-  ) : (
-    <span className="text-[6px] text-slate-300 italic">Click to sign</span>
-  )}
-</div>
-
-                    </div>
-                  </div>
-                </div>
 
                 <div className="flex justify-between mt-1 text-[7px] text-slate-500 font-bold uppercase italic">
                   <span>White - Customer Copy</span>
