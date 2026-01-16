@@ -115,9 +115,12 @@ const minutesToHoursString = (mins: number): string => {
         const result = await extractTimesheetData(base64);
         setData({ ...result, supervisorName: SUPERVISOR_FIXED });
         setAppState(AppState.EDITING);
-      } catch (err) {
-        setError("Erro na captura do print. Verifique a imagem.");
-        setAppState(AppState.IDLE);
+      } catch (err: any) {
+              console.error("Gemini error:", err);
+              const msg = err?.message ? String(err.message) : String(err);
+              setError(`Erro na captura do print: ${msg}`);
+              setAppState(AppState.IDLE);
+
       } finally {
         setLoading(false);
       }
