@@ -574,15 +574,53 @@ const minutesToHoursString = (mins: number): string => {
                   <div className="grid grid-rows-2 h-16 divide-y divide-black">
                     <div className="grid grid-cols-[120px_1fr] h-full">
                       <div className="label-fill p-1 font-bold border-r border-black flex items-center leading-tight italic">Supervisor's Signature:</div>
-                      <div className="p-0.5 flex items-center justify-center bg-white cursor-pointer" onClick={() => setAppState(AppState.SIGNING)}>
-                        {supervisorSignature ? <img src={supervisorSignature} className="max-h-full" alt="s-sign" /> : <span className="text-[6px] text-slate-300 italic">Click to sign</span>}
-                      </div>
+                      <div
+  className="p-0.5 bg-white cursor-pointer flex items-center justify-center"
+  style={{ height: "100%", minHeight: 56 }}  // ✅ garante altura do campo
+  onClick={() => setAppState(AppState.SIGNING)}
+>
+  {supervisorSignature ? (
+    <img
+      src={supervisorSignature}
+      alt="s-sign"
+      style={{
+        maxWidth: "100%",
+        maxHeight: "100%",
+        width: "100%",
+        height: "100%",
+        objectFit: "contain" // ✅ não corta
+      }}
+    />
+  ) : (
+    <span className="text-[6px] text-slate-300 italic">Click to sign</span>
+  )}
+</div>
+
                     </div>
                     <div className="grid grid-cols-[120px_1fr] h-full">
                       <div className="label-fill p-1 font-bold border-r border-black flex items-center leading-tight italic">Client Representative Signature:</div>
-                      <div className="p-0.5 flex items-center justify-center bg-white cursor-pointer" onClick={() => setAppState(AppState.SIGNING)}>
-                        {mySignature ? <img src={mySignature} className="max-h-full" alt="c-sign" /> : <span className="text-[6px] text-slate-300 italic">Click to sign</span>}
-                      </div>
+                      <div
+  className="p-0.5 bg-white cursor-pointer flex items-center justify-center"
+  style={{ height: "100%", minHeight: 56 }} // ✅ garante altura do campo
+  onClick={() => setAppState(AppState.SIGNING)}
+>
+  {mySignature ? (
+    <img
+      src={mySignature}
+      alt="c-sign"
+      style={{
+        maxWidth: "100%",
+        maxHeight: "100%",
+        width: "100%",
+        height: "100%",
+        objectFit: "contain" // ✅ não corta
+      }}
+    />
+  ) : (
+    <span className="text-[6px] text-slate-300 italic">Click to sign</span>
+  )}
+</div>
+
                     </div>
                   </div>
                 </div>
