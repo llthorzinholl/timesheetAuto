@@ -178,26 +178,68 @@ const minutesToHoursString = (mins: number): string => {
   };
 
   const exportAsJPG = async () => {
-    if (!timesheetRef.current) return;
-    setLoading(true);
-    try {
-      saveToHistory();
-      // Allow time for DOM updates
-      await new Promise(resolve => setTimeout(resolve, 500));
-      const dataUrl = await domtoimage.toJpeg(timesheetRef.current, { quality: 0.95 });
-      const link = document.createElement('a');
-      link.download = `AES-Timesheet-${serialNumber}.jpg`;
-      link.href = dataUrl;
-      link.click();
-      const nextSerial = serialNumber + 1;
-      setSerialNumber(nextSerial);
-      localStorage.setItem('aes_timesheet_serial', nextSerial.toString());
-    } catch (err) {
-      setError("Falha ao exportar imagem.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (!timesheetRef.current) return;
+
+  setLoading(true);
+
+  try {
+    saveToHistory();
+    await new Promise(r => setTimeout(r, 300));
+
+    const node = timesheetRef.current;
+
+    const A4_WIDTH_PX = 2480;
+    const A4_HEIGHT_PX = 3508;
+    const EXPORT_FONT_SCALE = 1.20; // 🔥 aumenta fonte no export
+
+    const rect = node.getBoundingClientRect();
+    const domWidth = rect.width;
+    const domHeight = rect.height;
+
+    const scale = Math.min(
+      A4_WIDTH_PX / domWidth,
+      A4_HEIGHT_PX / domHeight
+    );
+
+    const outWidth = Math.round(domWidth * scale);
+    const outHeight = Math.round(domHeight * scale);
+
+    // 🔹 Aplica escala de fonte SOMENTE na exportação
+    const originalFontSize = node.style.fontSize;
+    node.style.fontSize = `calc(1em * ${EXPORT_FONT_SCALE})`;
+
+    const dataUrl = await domtoimage.toJpeg(node, {
+      bgcolor: "#ffffff",
+      quality: 0.98,
+      width: outWidth,
+      height: outHeight,
+      style: {
+        transform: `scale(${scale})`,
+        transformOrigin: "top left",
+        width: `${domWidth}px`,
+        height: `${domHeight}px`,
+      },
+    });
+
+    // 🔙 restaura fonte original
+    node.style.fontSize = originalFontSize;
+
+    const link = document.createElement("a");
+    link.download = `AES-Timesheet-A4-${serialNumber}.jpg`;
+    link.href = dataUrl;
+    link.click();
+
+    const nextSerial = serialNumber + 1;
+    setSerialNumber(nextSerial);
+    localStorage.setItem("aes_timesheet_serial", nextSerial.toString());
+  } catch (err) {
+    console.error(err);
+    setError("Falha ao exportar imagem A4.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const EditableField = ({ value, onChange, className = "", uppercase = false }: any) => (
     <input
